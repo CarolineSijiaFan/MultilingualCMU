@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Sans SC", "Open Sans", "Arial";
+    background: white;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.container {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.hero {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 24px;
+    overflow: hidden; /* clip overflow */
+}
+.hero img {
+    width: 110%; /* per new design */
+    display: block;
+    margin-left: -5%; /* center crop */
+    height: auto;
+}
+
+.cmu-logo {
+    width: 240px;
+    height: auto;
+    margin: 0 auto 6px;
+    display: block;
+}
+
+.subtitle {
+    color: #222;
+    font-family: "Open Sans", "Noto Sans SC", Arial, sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.2;
+    margin-bottom: 40px;
+}
+
+.language-selector {
+    margin-bottom: 30px;
+}
+
+.select-container {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.language-select {
+    width: 100%;
+    padding: 18px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: "Noto Sans SC", "Open Sans", "Arial";
+    background: white;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: border-color 0.3s ease;
+    color: #333;
+}
+
+.language-select:focus {
+    outline: none;
+    border-color: #C41230;
+}
+
+.language-select option {
+    padding: 10px;
+    font-size: 16px;
+    font-family: "Noto Sans SC", "Open Sans", "Arial";
+}
+
+.select-arrow {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #C41230;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+.language-select:focus + .select-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.next-button {
+    width: 100%;
+    padding: 18px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: "Noto Sans SC", "Open Sans", "Arial";
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #e0e0e0;
+    color: #999;
+}
+
+.next-button.enabled {
+    background: #C41230;
+    color: white;
+}
+
+.next-button.enabled:hover {
+    background: #a30f28;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(196, 18, 48, 0.3);
+}
+
+.next-button:disabled {
+    cursor: not-allowed;
+    background: #e0e0e0;
+    color: #999;
+}
+
+/* ---------------------- Introductions ---------------------- */
+.intros {
+    display: none;
+    margin-top: 12px;
+}
+.intro-slide {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 600ms ease, transform 600ms ease;
+    text-align: center;
+    min-height: 260px;
+    display: none;
+}
+.intro-slide.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+.intro-slide.leaving {
+    display: block; /* keep in flow during exit */
+    opacity: 0;
+    transform: translateY(-12px);
+}
+.intro-copy {
+    color: #222;
+    font-family: "Open Sans", "Noto Sans SC", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    max-width: 320px;
+    margin: 0 auto 28px;
+}
+.intro-illustration {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    opacity: 0.85;
+}
+.intro-cta {
+    margin-top: 28px;
+}
+.intro-cta .next-button {
+    width: 180px;
+    margin: 0 auto;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+    body {
+        padding: 15px;
+    }
+    
+    .container {
+        padding: 30px 15px;
+    }
+    
+    .school-illustration {
+        width: 240px;
+        height: 140px;
+        margin-bottom: 25px;
+    }
+    
+    .title {
+        font-size: 24px;
+    }
+    
+    .subtitle {
+        font-size: 16px;
+        margin-bottom: 40px;
+    }
+    
+    .language-select {
+        padding: 16px 18px;
+        font-size: 15px;
+    }
+    
+    .next-button {
+        padding: 16px 18px;
+        font-size: 16px;
+    }
+}
