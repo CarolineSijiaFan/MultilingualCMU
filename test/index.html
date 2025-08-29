@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnegie Mellon University Guided Tour</title>
+    <link rel="stylesheet" href="/static/index.css">
+    <script src="/js/detailLoader.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <img src="/static/ui-assets/School.png" alt="Coulter Hall Illustration">
+        </div>
+        <img src="/static/ui-assets/Carnegie Mellon University.png" alt="Carnegie Mellon University" class="cmu-logo">
+        <p class="subtitle">Guided Tour</p>
+        
+        <div class="language-selector">
+            <div class="select-container">
+                <select id="languageSelect" class="language-select">
+                    <option value="">Select a Language</option>
+                </select>
+                <div class="select-arrow"></div>
+            </div>
+            
+            <button id="nextButton" class="next-button" disabled>
+                Next
+            </button>
+        </div>
+
+        <!-- Introductions (hidden until language selected) -->
+        <div id="intros" class="intros">
+            <div class="intro-slide" data-index="0">
+                <p class="intro-copy">Each tour stop offers an official introduction about the campus</p>
+                <img class="intro-illustration" src="/static/ui-assets/megaphone.png" alt="Megaphone">
+            </div>
+            <div class="intro-slide" data-index="1">
+                <p class="intro-copy">Pause or skip the audio at any time</p>
+                <img class="intro-illustration" src="/static/ui-assets/pause.png" alt="Pause">
+            </div>
+            <div class="intro-slide" data-index="2">
+                <p class="intro-copy">Hear from our students as you navigate between stops</p>
+                <img class="intro-illustration" src="/static/ui-assets/studentstory.png" alt="Student story">
+                <div class="intro-cta">
+                    <button id="introStartBtn" class="next-button enabled">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const languageSelect = document.getElementById('languageSelect');
+        const nextButton = document.getElementById('nextButton');
+
+        // Enable/disable next button based on language selection
+        languageSelect.addEventListener('change', function() {
+            if (this.value) {
+                nextButton.classList.add('enabled');
+                nextButton.disabled = false;
+            } else {
+                nextButton.classList.remove('enabled');
+                nextButton.disabled = true;
+            }
+        });
+
+        // Introductions logic
+        const introsEl = document.getElementById('intros');
+        const slides = Array.from(document.getElementsByClassName('intro-slide'));
+        let introTimer = null;
+        let introIndex = 0;
+
+        function showIntro(i) {
+            slides.forEach((s, idx) => {
+                s.classList.remove('leaving');
+                if (idx === i) return;
+                if (s.classList.contains('active')) {
+                    s.classList.remove('active');
+                    s.classList.add('leaving');
+                    // Remove leaving after transition to avoid buildup
+                    setTimeout(() => s.classList.remove('leaving'), 600);
+                }
+            });
+            const slide = slides[i];
+            if (slide) slide.classList.add('active');
+        }
+
+        function startIntroAutoPlay() {
+            if (introTimer) clearInterval(introTimer);
+            introTimer = setInterval(() => {
+                // stop at the last slide (no loop)
+                if (introIndex >= slides.length - 1) {
+                    clearInterval(introTimer);
+                    introTimer = null;
+                    return;
+                }
+                introIndex = introIndex + 1;
+                showIntro(introIndex);
+            }, 3000); // ~3s
+        }
+
+        // Handle next button click (after selecting language)
+        nextButton.addEventListener('click', function() {
+            if (!languageSelect.value) return;
+            // Hide selector, show intros
+            document.querySelector('.language-selector').style.display = 'none';
+            introsEl.style.display = 'block';
+            introIndex = 0;
+            showIntro(introIndex);
+            startIntroAutoPlay();
+        });
+
+        // Add some visual feedback for the select dropdown
+        languageSelect.addEventListener('focus', function() {
+            this.parentElement.querySelector('.select-arrow').style.transform = 'translateY(-50%) rotate(180deg)';
+        });
+
+        languageSelect.addEventListener('blur', function() {
+            this.parentElement.querySelector('.select-arrow').style.transform = 'translateY(-50%) rotate(0deg)';
+        });
+
+        function populateLanguagesFromLoader() {
+            try {
+                if (window.tourLoader && typeof window.tourLoader.getLanguageConfig === 'function') {
+                    const langConfig = window.tourLoader.getLanguageConfig();
+                    languageSelect.innerHTML = '<option value="">Select a Language</option>';
+                    Object.entries(langConfig).forEach(([code, meta]) => {
+                        const opt = document.createElement('option');
+                        opt.value = code;
+                        // Prefer native label when available (e.g., zh -> 中文)
+                        opt.textContent = meta.native || meta.name || code;
+                        languageSelect.appendChild(opt);
+                    });
+                }
+            } catch (e) { console.warn('Could not populate languages from loader', e); }
+        }
+
+        // On load: populate from loader and restore saved language
+        window.addEventListener('load', function() {
+            populateLanguagesFromLoader();
+            const savedLanguage = localStorage.getItem('tour-language');
+            if (savedLanguage) {
+                languageSelect.value = savedLanguage;
+                nextButton.classList.add('enabled');
+                nextButton.disabled = false;
+            }
+        });
+
+        // Start tour after intros
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'introStartBtn') {
+                if (introTimer) clearInterval(introTimer);
+                const selectedLanguage = languageSelect.value || localStorage.getItem('tour-language') || 'zh';
+                window.location.href = `detail.html?stop=welcome-center&lang=${selectedLanguage}`;
+            }
+        });
+    </script>
+</body>
+</html>

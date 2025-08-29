@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/static/lyrics.css">
+  <link rel="stylesheet" href="/static/detailPage.css">
+  <link rel="stylesheet" href="/static/image_slide.css">
+  <link rel="stylesheet" href="/static/audioPlayer.css">
+  <link rel="stylesheet" href="/static/responsive.css">
+
+  <script src="/static/slide.js" defer></script>
+  <script src="/static/audioPlayer.js" defer></script>
+  <script src="/static/lyricPlayer.js" defer></script>
+  <script src="/js/detailLoader.js" defer></script>
+
+  <title>Stop Detail</title>
+</head>
+
+<body>
+  <div class="content-container">
+    <img src="/static/ui-assets/menu.png" alt="Menu" class="menu-btn">
+    <div class="slideshow-container">
+      <div class="mySlides fade">
+        <div class="numbertext">1 / 3</div>
+        <img id="slide1" src="" alt="Slide 1">
+      </div>
+      <div class="mySlides fade">
+        <div class="numbertext">2 / 3</div>
+        <img id="slide2" src="" alt="Slide 2">
+      </div>
+      <div class="mySlides fade">
+        <div class="numbertext">3 / 3</div>
+        <img id="slide3" src="" alt="Slide 3">
+      </div>
+
+      <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+      <a class="next" onclick="plusSlides(1)">&#10095;</a>
+
+      <div class="dots-wrapper">
+        <span class="dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
+      </div>
+    </div>
+
+    <div class="title">
+      <div class="circle">1</div>
+      <div id="mainTitle" class="mainTitle"></div>
+    </div>
+
+    <div class="musicPlayer">
+      <audio id="audio"></audio>
+
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="progress-circle" id="progressCircle"></div>
+      </div>
+
+      <div class="musicPlayerIcon">
+        <button id="seekBackward10Btn" class="seek-btn">
+          <img src="/static/ui-assets/back.svg" alt="10 seconds back" class="seek-icon">
+        </button>
+        <button id="previousStopBtn" class="control-icon-link">
+          <img src="/static/ui-assets/previous.png" alt="Previous stop" class="control-icon">
+        </button>
+        <button id="playPauseBtn">
+          <img class="musicButton" id="playIcon" src="/static/ui-assets/play.svg" alt="Play">
+          <img class="musicButton" id="pauseIcon" src="/static/ui-assets/pause.svg" alt="Pause" style="display:none;">
+        </button>
+        <button id="nextStopBtn" class="control-icon-link">
+          <img src="/static/ui-assets/next.png" alt="Next stop" class="control-icon">
+        </button>
+        <button id="seekForward10Btn" class="seek-btn">
+          <img src="/static/ui-assets/forward.svg" alt="10 seconds forward" class="seek-icon">
+        </button>
+      </div>
+
+      <div class="lyrics-player">
+        <div class="lyrics-gradient-top"></div>
+        <div class="lyrics-scroll">
+          <div id="lyrics"></div>
+        </div>
+        <div class="lyrics-gradient-bottom"></div>
+        <img src="/static/ui-assets/enlarge.svg" alt="Enlarge" class="lyrics-enlarge-icon">
+      </div>
+    </div>
+
+    <h2>Related Student Stories</h2>
+    <h3>Listen between stops and resting periods</h3>
+    <div class="stories">
+      <!-- Example images -->
+      <img class="storyImg" src="/static/images/story1.png" alt="Story 1">
+      <!-- Add more as needed -->
+    </div>
+    <div id="sideMenu" class="side-menu">
+      <!-- Main Menu View -->
+      <div id="mainMenuView" class="menu-view active">
+        <div class="side-menu-header">
+          <img src="/static/ui-assets/menu.png" class="side-menu-close" alt="Close Menu">
+          <span>MENU</span>
+        </div>
+        <ul class="side-menu-list" id="sideMenuList"></ul>
+        <div class="side-menu-footer">
+          <img src="/static/ui-assets/settings.png" class="side-menu-settings" alt="Settings">
+          <span>Settings & Preferences</span>
+        </div>
+      </div>
+      
+      <!-- Settings View -->
+      <div id="settingsView" class="menu-view">
+        <div class="side-menu-header">
+          <img src="/static/ui-assets/previous.svg" class="side-menu-back" alt="Back to Menu">
+          <span>SETTINGS</span>
+        </div>
+        <div class="settings-content">
+          <div class="setting-group">
+            <label class="setting-label">Language / 语言</label>
+            <div class="language-options" id="languageOptions">
+              <!-- Language options will be populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sideMenuOverlay" class="side-menu-overlay"></div>
+  </div>
+</body>
+<script>
+function getCurrentLanguageFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('lang')) return urlParams.get('lang');
+  const pathSegments = window.location.pathname.split('/').filter(s => s);
+  if (pathSegments.includes('tour')) {
+    const tourIndex = pathSegments.indexOf('tour');
+    if (pathSegments.length > tourIndex + 1) {
+      return pathSegments[tourIndex + 1];
+    }
+  }
+  return 'zh'; // fallback
+}
+
+async function populateSideMenu() {
+  const lang = getCurrentLanguageFromUrl();
+  const res = await fetch('/static/stopOrder.json');
+  const stops = await res.json();
+  const stopArr = Object.entries(stops)
+    .map(([id, data]) => ({
+      id,
+      order: data.order,
+      title: (data.title && data.title[lang]) || (data.title && data.title.zh) || id.replace(/-/g, ' ')
+    }))
+    .sort((a, b) => a.order - b.order);
+  const ul = document.getElementById('sideMenuList');
+  ul.innerHTML = '';
+  stopArr.forEach(stop => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="side-menu-num-circle">${stop.order}</span> <span class="side-menu-title">${stop.title}</span>`;
+    li.onclick = () => {
+      window.location.href = `detail.html?stop=${stop.id}&lang=${lang}`;
+    };
+    ul.appendChild(li);
+  });
+}
+
+// Language configuration - will be populated from TourDetailLoader
+let LANGUAGE_CONFIG = {};
+
+// Wait for TourDetailLoader to be available
+function waitForTourLoader() {
+  return new Promise((resolve) => {
+    if (window.tourLoader) {
+      resolve(window.tourLoader);
+      return;
+    }
+    
+    const checkInterval = setInterval(() => {
+      if (window.tourLoader) {
+        clearInterval(checkInterval);
+        resolve(window.tourLoader);
+      }
+    }, 100);
+    
+    // Fallback timeout
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      console.warn('TourDetailLoader not available, using fallback language config');
+      resolve(null);
+    }, 5000);
+  });
+}
+
+// Initialize settings functionality
+async function initializeSettings() {
+  console.log('Starting settings initialization...');
+  
+  // Wait for TourDetailLoader to be available
+  const tourLoader = await waitForTourLoader();
+  console.log('TourLoader available:', !!tourLoader);
+  
+  if (tourLoader) {
+    // Get language configuration from TourDetailLoader
+    LANGUAGE_CONFIG = tourLoader.getLanguageConfig();
+    console.log('Language config from TourLoader:', LANGUAGE_CONFIG);
+  } else {
+    // Fallback configuration
+    LANGUAGE_CONFIG = {
+      'en': {
+        name: 'English',
+        native: 'English'
+      },
+      'zh': {
+        name: 'Chinese',
+        native: '中文'
+      }
+    };
+    console.log('Using fallback language config:', LANGUAGE_CONFIG);
+  }
+  
+  // Populate language options
+  const languageOptions = document.getElementById('languageOptions');
+  console.log('Language options container:', languageOptions);
+  
+  if (!languageOptions) {
+    console.error('Language options container not found!');
+    return;
+  }
+  
+  const currentLang = getCurrentLanguageFromUrl();
+  console.log('Current language:', currentLang);
+  
+  languageOptions.innerHTML = '';
+  
+  Object.entries(LANGUAGE_CONFIG).forEach(([code, lang]) => {
+    const option = document.createElement('div');
+    option.className = `language-option ${code === currentLang ? 'selected' : ''}`;
+    option.innerHTML = `
+      <input type="radio" name="language" value="${code}" ${code === currentLang ? 'checked' : ''}>
+      <span class="language-name">${lang.name}</span>
+      <span class="language-native">${lang.native}</span>
+    `;
+    
+    option.addEventListener('click', () => {
+      // Update visual selection
+      document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      option.querySelector('input').checked = true;
+      
+      // Change language
+      changeLanguage(code);
+    });
+    
+    languageOptions.appendChild(option);
+  });
+  
+  console.log('Settings initialization completed');
+}
+
+// Function to change language
+function changeLanguage(newLang) {
+  const currentStop = getCurrentStopFromUrl();
+  const newUrl = `detail.html?stop=${currentStop}&lang=${newLang}`;
+  
+  // Store language preference
+  localStorage.setItem('tour-language', newLang);
+  
+  // Navigate to new URL
+  window.location.href = newUrl;
+}
+
+// Helper function to get current stop from URL
+function getCurrentStopFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('stop')) {
+    return urlParams.get('stop');
+  }
+  const pathSegments = window.location.pathname.split('/').filter(s => s);
+  if (pathSegments.includes('tour')) {
+    const tourIndex = pathSegments.indexOf('tour');
+    if (pathSegments.length > tourIndex + 2) {
+      return pathSegments[tourIndex + 2];
+    }
+  }
+  return pathSegments[pathSegments.length - 1] || 'welcome-center';
+}
+
+// Menu view navigation functionality
+function initializeMenuNavigation() {
+  console.log('Initializing menu navigation...');
+  
+  const settingsBtn = document.querySelector('.side-menu-settings');
+  const backBtn = document.querySelector('.side-menu-back');
+  const mainMenuView = document.getElementById('mainMenuView');
+  const settingsView = document.getElementById('settingsView');
+  
+  console.log('Found elements:', {
+    settingsBtn: !!settingsBtn,
+    backBtn: !!backBtn,
+    mainMenuView: !!mainMenuView,
+    settingsView: !!settingsView
+  });
+  
+  if (!settingsBtn) {
+    console.error('Settings button not found!');
+    return;
+  }
+  
+  // Navigate to settings
+  settingsBtn.addEventListener('click', function(e) {
+    console.log('Settings button clicked!');
+    e.stopPropagation();
+    
+    // Slide out main menu and slide in settings
+    mainMenuView.classList.add('slide-out');
+    mainMenuView.classList.remove('active');
+    
+    setTimeout(() => {
+      settingsView.classList.add('active');
+      console.log('Settings view activated');
+    }, 150);
+  });
+  
+  // Navigate back to main menu
+  if (backBtn) {
+    backBtn.addEventListener('click', function(e) {
+      console.log('Back button clicked!');
+      e.stopPropagation();
+      
+      // Slide out settings and slide in main menu
+      settingsView.classList.remove('active');
+      
+      setTimeout(() => {
+        mainMenuView.classList.remove('slide-out');
+        mainMenuView.classList.add('active');
+        console.log('Main menu view activated');
+      }, 150);
+    });
+  }
+  
+  // Also add a simple display-based back handler as backup
+  const backBtnSimple = document.querySelector('.side-menu-back');
+  if (backBtnSimple && backBtnSimple !== backBtn) {
+    backBtnSimple.addEventListener('click', function(e) {
+      console.log('Back button clicked (simple)!');
+      e.stopPropagation();
+      
+      // Simple display toggle
+      document.getElementById('settingsView').style.display = 'none';
+      document.getElementById('mainMenuView').style.display = 'flex';
+    });
+  }
+  
+  // Close entire menu when clicking close button (only from main menu)
+  const closeBtn = document.querySelector('.side-menu-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      console.log('Close button clicked!');
+      document.getElementById('sideMenu').classList.remove('open');
+      document.getElementById('sideMenuOverlay').classList.remove('open');
+      
+      // Reset to main menu view when closing
+      setTimeout(() => {
+        mainMenuView.classList.remove('slide-out');
+        mainMenuView.classList.add('active');
+        settingsView.classList.remove('active');
+      }, 300);
+    });
+  }
+  
+  console.log('Menu navigation initialized successfully');
+}
+
+// Simple initialization - no complex async operations
+console.log('Starting simple initialization...');
+
+// Initialize side menu
+populateSideMenu();
+
+// Initialize settings and menu navigation
+initializeSettings().then(() => {
+  initializeMenuNavigation();
+}).catch((error) => {
+  console.error('Error initializing settings:', error);
+  initializeMenuNavigation();
+});
+
+// Simple test initialization
+const settingsBtn = document.querySelector('.side-menu-settings');
+const mainMenuView = document.getElementById('mainMenuView');
+const settingsView = document.getElementById('settingsView');
+
+console.log('Basic elements found:', {
+  settingsBtn: !!settingsBtn,
+  mainMenuView: !!mainMenuView,
+  settingsView: !!settingsView
+});
+
+// Ensure proper initial state
+if (mainMenuView) {
+  mainMenuView.style.display = 'flex';
+}
+if (settingsView) {
+  settingsView.style.display = 'none';
+}
+
+// Add a simple test click handler
+if (settingsBtn) {
+  settingsBtn.addEventListener('click', function(e) {
+    console.log('Settings button clicked (test)!');
+    e.stopPropagation();
+    
+    // Simple toggle for testing
+    mainMenuView.style.display = 'none';
+    settingsView.style.display = 'flex';
+  });
+}
+
+// Add a simple back button test handler
+const backBtn = document.querySelector('.side-menu-back');
+if (backBtn) {
+  backBtn.addEventListener('click', function(e) {
+    console.log('Back button clicked (test)!');
+    e.stopPropagation();
+    
+    // Simple toggle back
+    settingsView.style.display = 'none';
+    mainMenuView.style.display = 'flex';
+  });
+}
+
+// Simple stop navigation (without async complexity)
+setTimeout(() => {
+  try {
+    const previousBtn = document.getElementById('previousStopBtn');
+    const nextBtn = document.getElementById('nextStopBtn');
+    
+    if (previousBtn && nextBtn) {
+      console.log('Setting up stop navigation...');
+      
+      // Load stop order data and set up navigation
+      fetch('/static/stopOrder.json')
+        .then(res => res.json())
+        .then(stopOrderData => {
+          // Convert to array and sort by order
+          const stopArray = Object.entries(stopOrderData)
+            .map(([id, data]) => ({
+              id,
+              order: data.order,
+              title: data.title
+            }))
+            .sort((a, b) => a.order - b.order);
+          
+          // Find current stop index
+          const currentStop = getCurrentStopFromUrl();
+          const currentStopIndex = stopArray.findIndex(stop => stop.id === currentStop);
+          
+          console.log('Stop navigation setup:', {
+            currentStop,
+            currentStopIndex,
+            totalStops: stopArray.length
+          });
+          
+          // Previous stop button
+          previousBtn.addEventListener('click', function() {
+            if (currentStopIndex > 0) {
+              const previousStop = stopArray[currentStopIndex - 1];
+              const currentLang = getCurrentLanguageFromUrl();
+              const newUrl = `detail.html?stop=${previousStop.id}&lang=${currentLang}`;
+              console.log('Navigating to previous stop:', previousStop.id);
+              window.location.href = newUrl;
+            }
+          });
+          
+          // Next stop button
+          nextBtn.addEventListener('click', function() {
+            const currentLang = getCurrentLanguageFromUrl();
+            if (currentStopIndex < stopArray.length - 1) {
+              const nextStop = stopArray[currentStopIndex + 1];
+              const newUrl = `detail.html?stop=${nextStop.id}&lang=${currentLang}`;
+              console.log('Navigating to next stop:', nextStop.id);
+              window.location.href = newUrl;
+            } else {
+              // Last stop → go to ending page
+              window.location.href = `ending.html?lang=${currentLang}`;
+            }
+          });
+          
+          // Update button states
+          if (currentStopIndex <= 0) {
+            previousBtn.disabled = true;
+            previousBtn.style.opacity = '0.3';
+            previousBtn.style.cursor = 'not-allowed';
+          }
+          
+          if (currentStopIndex >= stopArray.length - 1) {
+            // On last stop, keep button active to finish the tour
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+            nextBtn.style.cursor = 'pointer';
+            nextBtn.title = 'Finish tour';
+          }
+        })
+        .catch(error => {
+          console.error('Error loading stop order data:', error);
+        });
+    }
+  } catch (error) {
+    console.error('Error setting up stop navigation:', error);
+  }
+}, 1000);
+
+// Menu button to open side menu
+document.querySelector('.menu-btn').addEventListener('click', function() {
+  document.getElementById('sideMenu').classList.add('open');
+  document.getElementById('sideMenuOverlay').classList.add('open');
+});
+
+// Overlay click to close menu
+document.getElementById('sideMenuOverlay').addEventListener('click', function() {
+  document.getElementById('sideMenu').classList.remove('open');
+  document.getElementById('sideMenuOverlay').classList.remove('open');
+  
+  // Reset to main menu view when closing
+  const mainMenuView = document.getElementById('mainMenuView');
+  const settingsView = document.getElementById('settingsView');
+  setTimeout(() => {
+    mainMenuView.classList.remove('slide-out');
+    mainMenuView.classList.add('active');
+    settingsView.classList.remove('active');
+  }, 300);
+});
+</script>
+</html>
