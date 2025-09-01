@@ -4,23 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="/static/lyrics.css">
-  <link rel="stylesheet" href="/static/detailPage.css">
-  <link rel="stylesheet" href="/static/image_slide.css">
-  <link rel="stylesheet" href="/static/audioPlayer.css">
-  <link rel="stylesheet" href="/static/responsive.css">
+  <link rel="stylesheet" href="static/lyrics.css">
+  <link rel="stylesheet" href="static/detailPage.css">
+  <link rel="stylesheet" href="static/image_slide.css">
+  <link rel="stylesheet" href="static/audioPlayer.css">
+  <link rel="stylesheet" href="static/responsive.css">
 
-  <script src="/static/slide.js" defer></script>
-  <script src="/static/audioPlayer.js" defer></script>
-  <script src="/static/lyricPlayer.js" defer></script>
-  <script src="/js/detailLoader.js" defer></script>
+  <script src="static/slide.js" defer></script>
+  <script src="static/audioPlayer.js" defer></script>
+  <script src="static/lyricPlayer.js" defer></script>
+  <script src="js/detailLoader.js" defer></script>
 
   <title>Stop Detail</title>
 </head>
 
 <body>
   <div class="content-container">
-    <img src="/static/ui-assets/menu.png" alt="Menu" class="menu-btn">
+    <img src="static/ui-assets/menu.png" alt="Menu" class="menu-btn">
     <div class="slideshow-container">
       <div class="mySlides fade">
         <div class="numbertext">1 / 3</div>
@@ -60,20 +60,20 @@
 
       <div class="musicPlayerIcon">
         <button id="seekBackward10Btn" class="seek-btn">
-          <img src="/static/ui-assets/back.svg" alt="10 seconds back" class="seek-icon">
+          <img src="static/ui-assets/back.svg" alt="10 seconds back" class="seek-icon">
         </button>
         <button id="previousStopBtn" class="control-icon-link">
-          <img src="/static/ui-assets/previous.png" alt="Previous stop" class="control-icon">
+          <img src="static/ui-assets/previous.png" alt="Previous stop" class="control-icon">
         </button>
         <button id="playPauseBtn">
-          <img class="musicButton" id="playIcon" src="/static/ui-assets/play.svg" alt="Play">
-          <img class="musicButton" id="pauseIcon" src="/static/ui-assets/pause.svg" alt="Pause" style="display:none;">
+          <img class="musicButton" id="playIcon" src="static/ui-assets/play.svg" alt="Play">
+          <img class="musicButton" id="pauseIcon" src="static/ui-assets/pause.svg" alt="Pause" style="display:none;">
         </button>
         <button id="nextStopBtn" class="control-icon-link">
-          <img src="/static/ui-assets/next.png" alt="Next stop" class="control-icon">
+          <img src="static/ui-assets/next.png" alt="Next stop" class="control-icon">
         </button>
         <button id="seekForward10Btn" class="seek-btn">
-          <img src="/static/ui-assets/forward.svg" alt="10 seconds forward" class="seek-icon">
+          <img src="static/ui-assets/forward.svg" alt="10 seconds forward" class="seek-icon">
         </button>
       </div>
 
@@ -83,7 +83,7 @@
           <div id="lyrics"></div>
         </div>
         <div class="lyrics-gradient-bottom"></div>
-        <img src="/static/ui-assets/enlarge.svg" alt="Enlarge" class="lyrics-enlarge-icon">
+        <img src="static/ui-assets/enlarge.svg" alt="Enlarge" class="lyrics-enlarge-icon">
       </div>
     </div>
 
@@ -91,19 +91,19 @@
     <h3>Listen between stops and resting periods</h3>
     <div class="stories">
       <!-- Example images -->
-      <img class="storyImg" src="/static/images/story1.png" alt="Story 1">
+      <img class="storyImg" src="static/images/story1.png" alt="Story 1">
       <!-- Add more as needed -->
     </div>
     <div id="sideMenu" class="side-menu">
       <!-- Main Menu View -->
       <div id="mainMenuView" class="menu-view active">
         <div class="side-menu-header">
-          <img src="/static/ui-assets/menu.png" class="side-menu-close" alt="Close Menu">
+          <img src="static/ui-assets/menu.png" class="side-menu-close" alt="Close Menu">
           <span>MENU</span>
         </div>
         <ul class="side-menu-list" id="sideMenuList"></ul>
         <div class="side-menu-footer">
-          <img src="/static/ui-assets/settings.png" class="side-menu-settings" alt="Settings">
+          <img src="static/ui-assets/settings.png" class="side-menu-settings" alt="Settings">
           <span>Settings & Preferences</span>
         </div>
       </div>
@@ -111,7 +111,7 @@
       <!-- Settings View -->
       <div id="settingsView" class="menu-view">
         <div class="side-menu-header">
-          <img src="/static/ui-assets/previous.svg" class="side-menu-back" alt="Back to Menu">
+          <img src="static/ui-assets/previous.svg" class="side-menu-back" alt="Back to Menu">
           <span>SETTINGS</span>
         </div>
         <div class="settings-content">
@@ -143,7 +143,7 @@ function getCurrentLanguageFromUrl() {
 
 async function populateSideMenu() {
   const lang = getCurrentLanguageFromUrl();
-  const res = await fetch('/static/stopOrder.json');
+  const res = await fetch('static/stopOrder.json');
   const stops = await res.json();
   const stopArr = Object.entries(stops)
     .map(([id, data]) => ({
@@ -439,7 +439,7 @@ setTimeout(() => {
       console.log('Setting up stop navigation...');
       
       // Load stop order data and set up navigation
-      fetch('/static/stopOrder.json')
+      fetch('static/stopOrder.json')
         .then(res => res.json())
         .then(stopOrderData => {
           // Convert to array and sort by order
