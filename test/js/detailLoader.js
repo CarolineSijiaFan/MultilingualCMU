@@ -18,7 +18,7 @@ class TourDetailLoader {
         
         // Configuration
         this.config = {
-            BASE_PATH: '/MultilingualCMU/test/content',
+            BASE_PATH: 'content',
             DEFAULT_LANGUAGE: 'zh',
             SUPPORTED_LANGUAGES: ['en', 'zh'],
             
@@ -134,7 +134,7 @@ class TourDetailLoader {
 
     async loadStopOrder() {
         try {
-            const res = await fetch('/static/stopOrder.json');
+            const res = await fetch('static/stopOrder.json');
             stopOrderData = await res.json();
             this.stopOrderLoaded = true;
         } catch (e) {
