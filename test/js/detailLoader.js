@@ -18,7 +18,7 @@ class TourDetailLoader {
         
         // Configuration
         this.config = {
-            BASE_PATH: '/content',
+            BASE_PATH: 'content',
             DEFAULT_LANGUAGE: 'zh',
             SUPPORTED_LANGUAGES: ['en', 'zh'],
             
