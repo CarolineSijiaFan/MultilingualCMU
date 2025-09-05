@@ -188,19 +188,19 @@ class TourDetailLoader {
         console.log("Content loaded successfully");
     }
 
-    loadAudio() {
-        const audioElement = document.getElementById('audio');
-        if (!audioElement) return;
-        
-        const pattern = this.config.PATTERNS.HYBRID;
-        let audioFile = pattern.audio.replace('{lang}', this.currentLanguage);
-        
-        const audioPath = `content/${this.currentStop}/audio/audio-${this.currentLanguage}.mp3`;
-        audioElement.innerHTML = `<source src="${audioPath}" type="audio/mpeg">`;
-        audioElement.load();
-        
-        console.log("Audio loaded:", audioPath);
-    }
+loadAudio() {
+    const audioElement = document.getElementById('audio');
+    if (!audioElement) return;
+
+    const pattern = this.config.PATTERNS.HYBRID;
+    let audioFile = pattern.audio.replace('{lang}', this.currentLanguage);
+
+    const audioPath = `content/${this.currentStop}/audio/audio-${this.currentLanguage}.mp3`;
+    audioElement.src = audioPath; // <-- Set src directly
+    audioElement.load();
+
+    console.log("Audio loaded:", audioPath);
+}
 
     async loadImages() {
         const pattern = this.config.PATTERNS.HYBRID;
