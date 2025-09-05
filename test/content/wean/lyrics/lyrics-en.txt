@@ -1,2 +1,2 @@
-[TITLE] Coulter welcome center
-[00:00] 大家好！欢迎来到卡内基梅隆大学的校园游览，
+[TITLE] Wean
+[00:00] [dummy text]

@@ -195,7 +195,7 @@ class TourDetailLoader {
         const pattern = this.config.PATTERNS.HYBRID;
         let audioFile = pattern.audio.replace('{lang}', this.currentLanguage);
         
-        const audioPath = `${this.contentPath}/${audioFile}`;
+        const audioPath = `content/${this.currentStop}/audio/audio-${this.currentLanguage}.mp3`;
         audioElement.innerHTML = `<source src="${audioPath}" type="audio/mpeg">`;
         audioElement.load();
         
